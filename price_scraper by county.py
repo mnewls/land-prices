@@ -27,14 +27,14 @@ import urllib.request
 
 import time # to sleep
 
-def get_page_info(driver, zip_code):
+def get_page_info(driver, county):
 
 
     #https://www.landsoftexas.com/Coryell-County-TX/all-land/
 
     
 
-    url_str = r'https://www.landsoftexas.com/zip-' +zip_code + '/all-land/no-house/type-4031/sort-newest/'
+    url_str = r'https://www.landsoftexas.com/' +county+ '-County-TX/all-land/no-house/type-4031/sort-newest/'
 
     #https://www.landsoftexas.com/zip-75555/all-land/
 
@@ -82,7 +82,14 @@ def get_page_info(driver, zip_code):
 
         acres = break_up_data[0]
 
-        extracted_cost = break_up_data[3]
+        trigger_no_data = False
+
+        try: 
+            extracted_cost = break_up_data[3]
+        except:
+            print(break_up_data)
+            trigger_no_data = True
+
 
         extracted_cost = extracted_cost.replace('$','')
         extracted_cost = extracted_cost.replace(',','')
@@ -96,10 +103,13 @@ def get_page_info(driver, zip_code):
         
 
         #print(this_price)
+        if trigger_no_data == False:
+            price_sum.append(int(extracted_cost))
+            acreage_sum.append(int(float(acres)))
+        else:
+            print('there was a listing with no price')
 
-        price_sum.append(int(extracted_cost))
-        acreage_sum.append(int(float(acres)))
-
+        trigger_no_data = False
         ##add code here to summ prices
 
     
@@ -120,7 +130,7 @@ def get_page_info(driver, zip_code):
 
         #print('looking at page: ' + str(page_num))
 
-        url_str = r'https://www.landsoftexas.com/zip-' +zip_code + '/all-land/no-house/type-4031/sort-newest/'
+        url_str = r'https://www.landsoftexas.com/' +county+ '-County-TX//all-land/no-house/type-4031/sort-newest/'
 
         driver.get(url_str)
 
@@ -154,7 +164,13 @@ def get_page_info(driver, zip_code):
 
             acres = break_up_data[0]
 
-            extracted_cost = break_up_data[3]
+            trigger_no_data = False
+
+            try: 
+                extracted_cost = break_up_data[3]
+            except:
+                #print(break_up_data)
+                trigger_no_data = True
 
             extracted_cost = extracted_cost.replace('$','')
             extracted_cost = extracted_cost.replace(',','')
@@ -169,8 +185,13 @@ def get_page_info(driver, zip_code):
 
             #print(this_price)
 
-            price_sum.append(int(extracted_cost))
-            acreage_sum.append(int(float(acres)))
+            if trigger_no_data == False:
+                price_sum.append(int(extracted_cost))
+                acreage_sum.append(int(float(acres)))
+            else:
+                print('there was a listing with no price')
+
+            trigger_no_data = False
 
 
         
@@ -185,21 +206,21 @@ def get_page_info(driver, zip_code):
 
     avg_PPA = total_cost / total_acres
 
-    print("average cost per acre in zipcode " + str(zip_code) + " is: $" + str(avg_PPA))
+    print("average cost per acre in county " + county + " is: $" + str(avg_PPA))
            
 
 def get_info():
     
-    print('What zip code would you like to search:')
+    print('What county would you like to search:')
 
-    zip_code = input()
+    county = input()
 
     options = webdriver.ChromeOptions()
     options.add_argument("--start-maximized")
 
     driver = webdriver.Chrome(executable_path=r'C:\Users\Michael\Desktop\Python\Automate Application\chromedriver.exe', chrome_options=options)
 
-    get_page_info(driver, zip_code)
+    get_page_info(driver, county)
     
 
 
